@@ -19,16 +19,11 @@
         {% endif %} 
     -->
 
-    <div style="display:block; width:300px;margin:0 auto;">
-        {% if message %}
-            <h1>{{ message }}</h1>
-        {% endif %} 
-
-        <form action="match/" method="post">
-            {% csrf_token %}
-            <input type="text" name="code" placeholder="Enter the code of the game">
-            <input type="submit" value="Enter">
-        </form>
+    <div style="width:200px;margin:0 auto">
+        <h1>{{ createrName }}</h1>
+        <h1>{{ code }}</h1>
+        <h1>{{ board }}</h1>
+        <h1>{{ player2 }}</h1>
     </div>
     <script src="{% static 'index.js'%}"></script>
 </body>
