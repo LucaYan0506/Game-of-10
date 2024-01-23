@@ -21,3 +21,23 @@ In the home page, there is button that allow you to create a new match. After cl
 * limit time: you can set the limit time that each player has for each turn to make the equation. It the time expired, the player must discard a card and skip this turn.
 * include more operation: you can include more complicated operator such as factorial (!)
 ## How to join a match
+  
+  
+  
+## How to run the website in your local network:
+Make sure that [python](https://www.python.org/downloads/), [pip](https://pip.pypa.io/en/stable/installation/) and [pipenv](https://pipenv.pypa.io/en/latest/install/) are installed. Run the following code to:   
+#### set up virtual environment 
+```
+pipenv install django  
+pipenv shell
+pip install -r requirements.txt
+```
+#### create a superuser (optional)
+```
+python manage.py createsuperuser
+```
+#### run the app
+```
+python manage.py migrate
+python manage.py runserver
+```
