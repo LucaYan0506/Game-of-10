@@ -28,8 +28,7 @@ In the home page, there is button that allow you to create a new match. After cl
 Make sure that [python](https://www.python.org/downloads/), [pip](https://pip.pypa.io/en/stable/installation/) and [pipenv](https://pipenv.pypa.io/en/latest/install/) are installed. Run the following code to:   
 #### set up virtual environment 
 ```
-pipenv install django  
-pipenv shell
+spipenv shell
 pip install -r requirements.txt
 ```
 #### create a superuser (optional)
