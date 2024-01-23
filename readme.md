@@ -29,14 +29,20 @@ Make sure that [python](https://www.python.org/downloads/), [pip](https://pip.py
 #### set up virtual environment 
 ```
 pipenv shell
+```
+```
 pip install -r requirements.txt
 ```
-#### create a superuser (optional)
+#### access to the project's folder
 ```
-python manage.py createsuperuser
+cd .\gameOf10\
 ```
 #### run the app
 ```
 python manage.py migrate
 python manage.py runserver
+```
+#### create a superuser (optional)
+```
+python manage.py createsuperuser
 ```
