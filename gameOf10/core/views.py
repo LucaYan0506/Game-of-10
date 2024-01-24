@@ -12,11 +12,10 @@ def generateGuestUser(request):
     while User.objects.filter(username=guest_username).exists():
         guest_username = f'guest_{uuid.uuid4().hex[:8]}'
         
-    guestUser = User.objects.create(username = guest_username, isGuest = True, )
-    guestUser.set_unusable_password()
+    guestUser = User(username = guest_username, isGuest = True)
+    guestUser.set_password('test')
     guestUser.save()
-
-    user = authenticate(request, username=guest_username,password = None)
+    user = authenticate(request, username=guest_username,password = 'test')
     login(request, user)
 
     return HttpResponse(f"Hello, {guestUser.username}!")
@@ -41,6 +40,7 @@ def match_view(request):
             else:
                 if game[0].player == None:
                     game[0].player = request.user
+                    game[0].save()
                     player = request.user.username
                 else:
                     return HttpResponse("This room is full, please create a new game or join another game")
