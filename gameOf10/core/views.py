@@ -1,14 +1,25 @@
 from django.shortcuts import render,reverse
+from django.contrib.auth import authenticate, login
 from django.http import HttpResponse,HttpResponseRedirect
-from .models import Game
+from .models import Game,User
+import uuid
 
-from guest_user.decorators import allow_guest_user
+def generateGuestUser(request):
+    if request.user.is_authenticated:
+        return HttpResponse(f"Hello {request.user}")
+    
+    guest_username = f'guest_{uuid.uuid4().hex[:8]}'
+    while User.objects.filter(username=guest_username).exists():
+        guest_username = f'guest_{uuid.uuid4().hex[:8]}'
+        
+    guestUser = User.objects.create(username = guest_username, isGuest = True, )
+    guestUser.set_unusable_password()
+    guestUser.save()
 
-@allow_guest_user
-def hello_guest(request):
-    request.user.first_name = 'tes'
-    request.user.save()
-    return HttpResponse(f"Hello, Guest{request.user.username}!")
+    user = authenticate(request, username=guest_username,password = None)
+    login(request, user)
+
+    return HttpResponse(f"Hello, {guestUser.username}!")
 
 # Create your views here.
 def index_view(request):
@@ -21,28 +32,23 @@ def match_view(request):
         return HttpResponse("Error, no user")
     if request.method == 'POST':
         code = request.POST['code']
-        '''
-        verify user and/or login as guest
-        username = request.POST["username"]
-        password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)
-        
-        # Check if authentication successful
-        if user is not None:
-            login(request, user)
-            return HttpResponseRedirect(reverse('index'))
-        else:
-            return render(request, "hotelManagement/login.html", {
-                "message": "Invalid username and/or password."
-            })
-        '''
         game = Game.objects.filter(code=code)
         if len(game) == 1:
+            player = None
+            if game[0].creator_name.id == request.user.id:
+                if game[0].player != None:
+                    player = game[0].player.username
+            else:
+                if game[0].player == None:
+                    game[0].player = request.user
+                    player = request.user.username
+                else:
+                    return HttpResponse("This room is full, please create a new game or join another game")
             return render(request,'match.html',{
-                'creatorName':game[0].creator_name,
+                'creatorName':game[0].creator_name.username,
                 'code':game[0].code,
                 'board':game[0].board,
-                'player2':request.user.username
+                'player':player
                 })
 
         return HttpResponseRedirect(reverse('index') + '?message=Invalid code')
@@ -50,3 +56,10 @@ def match_view(request):
     return HttpResponse('Error, you are in the wrong page')
     
 
+def getGameInfo(request):
+    if not request.user.is_authenticated:
+        pass#you are in the wrong url
+    if not request.method == 'POST':
+        pass#you are wrong in the wrong method
+
+    pass#return json 
