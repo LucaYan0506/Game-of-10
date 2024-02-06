@@ -45,6 +45,7 @@ def match_view(request):
                 else:
                     return HttpResponse("This room is full, please create a new game or join another game")
             return render(request,'match.html',{
+                'board_size':range(1,14),
                 'creatorName':game[0].creator_name.username,
                 'code':game[0].code,
                 'board':game[0].board,

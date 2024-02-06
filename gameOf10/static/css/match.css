@@ -1,0 +1,21 @@
+body{
+    margin:0;
+    display: flex;
+    align-items: center;
+}
+
+#board{
+    display: grid;
+    margin:10 auto;
+    position: relative;
+    grid-template-columns: auto auto auto auto auto auto auto auto auto auto auto auto auto;
+}
+
+.board-item{
+    display: flex;
+    border:1px solid red;
+    width: 6vw;
+    aspect-ratio: 1/1;
+    align-items: center;
+    justify-content: center;
+}

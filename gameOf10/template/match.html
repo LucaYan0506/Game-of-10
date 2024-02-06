@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/match.css' %}">
     <title>Document</title>
 </head>
-<body style="display:flex;align-items:center">
+<body>
     <!--
         <img src="{% static 'img.png' %}"></img>
 
@@ -17,7 +17,6 @@
         {% if temp == 1 %}
             <h1>Hello</h1>
         {% endif %} 
-    -->
 
     <div style="width:100vw;text-align: center;">
         <h1>Creator Name: {{ creatorName }}</h1>
@@ -25,6 +24,17 @@
         <h1>Board details: {{ board }}</h1>
         <h1>Seoncd Player name: {{ player }}</h1>
     </div>
-    <script src="{% static 'index.js'%}"></script>
+    -->
+
+    <div id="board">
+
+        {% for x in board_size %}
+            {% for x in board_size %}
+                <div class="board-item">{{x}}</div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <script src="{% static 'match.js'%}"></script>
 </body>
 </html>
