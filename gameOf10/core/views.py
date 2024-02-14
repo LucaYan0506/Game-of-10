@@ -34,22 +34,28 @@ def match_view(request):
         game = Game.objects.filter(code=code)
         if len(game) == 1:
             player = None
+            cards = None
             if game[0].creator_name.id == request.user.id:
+                cards = game[0].creator_cards
                 if game[0].player != None:
                     player = game[0].player.username
             else:
+                cards = game[0].player_cards
                 if game[0].player == None:
                     game[0].player = request.user
                     game[0].save()
+                    player = request.user.username
+                elif game[0].player.id == request.user.id:
                     player = request.user.username
                 else:
                     return HttpResponse("This room is full, please create a new game or join another game")
             return render(request,'match.html',{
                 'board_size':range(1,14),
                 'creatorName':game[0].creator_name.username,
+                'cards':cards,
                 'code':game[0].code,
                 'board':game[0].board,
-                'player':player
+                'player':player,
                 })
 
         return HttpResponseRedirect(reverse('index') + '?message=Invalid code')

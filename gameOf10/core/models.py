@@ -13,9 +13,11 @@ class User(AbstractUser):
 
 
 class Game(models.Model):
-    code = models.CharField(max_length = 10)
-    board = models.CharField(max_length=200)
+    code = models.CharField(max_length = 10, primary_key=True)
+    board = models.CharField(max_length=169, default=None, blank=True, null=True)
     creator_name = models.ForeignKey(User, related_name="createdGame", on_delete=models.CASCADE)
-    player = models.ForeignKey(User, blank=True, null=True, related_name="joinedGame", on_delete=models.CASCADE)
+    creator_cards = models.CharField(max_length=10, default=None, blank=True, null=True)
+    player = models.ForeignKey(User, blank=True, null=True, related_name="joinedGame", on_delete=models.SET_NULL)
+    player_cards = models.CharField(max_length=10,default=None, blank=True, null=True)
 
 
