@@ -13,11 +13,15 @@ class User(AbstractUser):
 
 
 class Game(models.Model):
+    TURN_CHOICES = [
+        (1, 'creator'),
+        (2, 'player'),
+    ]
     code = models.CharField(max_length = 10, primary_key=True)
     board = models.CharField(max_length=169, default=None, blank=True, null=True)
     creator_name = models.ForeignKey(User, related_name="createdGame", on_delete=models.CASCADE)
     creator_cards = models.CharField(max_length=10, default=None, blank=True, null=True)
     player = models.ForeignKey(User, blank=True, null=True, related_name="joinedGame", on_delete=models.SET_NULL)
     player_cards = models.CharField(max_length=10,default=None, blank=True, null=True)
-
+    turn = models.IntegerField(choices=TURN_CHOICES, default=1)
 

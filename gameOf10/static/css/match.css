@@ -1,13 +1,17 @@
 body{
     margin:0;
     display: flex;
-    align-items: center;
 }
 
 #board{
     display: grid;
-    margin:10 auto;
+    margin:auto;
+    padding:10 0;
     position: relative;
+    max-height: min(490px,calc(100vh - 3.5em - 90px));
+    transform: translateY(-3.5em);
+    overflow-y: scroll;
+    overflow-x: hidden;
     grid-template-columns: auto auto auto auto auto auto auto auto auto auto auto auto auto;
 }
 
@@ -31,10 +35,10 @@ body{
 #card-container{
     position:absolute;
     bottom:0;
-    left:50%;
-    transform: translate(-50%,-10px);
     z-index: 1;
     user-select: none;
+    width: 100vw;
+    text-align: center;
 }
 
 .card{
@@ -69,4 +73,29 @@ body{
     background-color: #5da5e8;
     color:white;
     transform: translate(0,-20px);
+}
+
+#timer{
+    margin:auto;
+}
+
+#button-container{
+    margin:auto;
+}
+
+@media screen and (max-width: 650px) {
+    #timer, #button-container{
+        margin:10;
+        position:absolute;
+        top:0;
+    }
+    
+    #timer{
+        left:10vw;
+    }
+
+    #button-container{
+        right: 10vw;
+    }
+    
 }

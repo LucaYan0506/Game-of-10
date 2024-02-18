@@ -7,30 +7,14 @@
     <title>Document</title>
 </head>
 <body>
-    <!--
-        <img src="{% static 'img.png' %}"></img>
-
-        {% for i in n %}        #n is variable that contains an integer, this loop generate n divs each div has a number (from 0 to n)
-            <div>i</div>
-        {% endfor %}
-
-        {% if temp == 1 %}
-            <h1>Hello</h1>
-        {% endif %} 
-
-    <div style="width:100vw;text-align: center;">
-        <h1>Creator Name: {{ creatorName }}</h1>
-        <h1>Game code:{{ code }}</h1>
-        <h1>Board details: {{ board }}</h1>
-        <h1>Seoncd Player name: {{ player }}</h1>
-    </div>
-    -->
-
     <div id="card-container">
         {% for card in cards %}
             <div class="card">{{card}}</div>
         {% endfor %}
     </div>
+
+
+    <div id="timer">{% if myTurn %}your turn: {% else %}enemy turn: {% endif %}<b>120:00</b></div>
 
     <div id="board">
         {% for i in board_size %}
@@ -40,7 +24,17 @@
         {% endfor %}
     </div>
 
+    <div id="button-container">
+        {% csrf_token %}
+        <button onclick="submitAction()">submit</button>
+    </div>
+
     <script>
+        {% if myTurn %}
+            myTurn = true;
+        {% else %}
+            myTurn = false;
+        {% endif %}
         board_detail = "{{board}}"
     </script>
     <script src="{% static 'js/match.js'%}"></script>
