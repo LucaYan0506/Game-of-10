@@ -185,7 +185,7 @@ def match_view(request):
         if len(game) == 1:
             player = None
             cards = None
-            if game[0].creator_name.id == request.user.id:
+            if game[0].creator_name.pk == request.user.pk:
                 cards = game[0].creator_cards
                 if game[0].player != None:
                     player = game[0].player.username
@@ -195,12 +195,12 @@ def match_view(request):
                     game[0].player = request.user
                     game[0].save()
                     player = request.user.username
-                elif game[0].player.id == request.user.id:
+                elif game[0].player.pk == request.user.pk:
                     player = request.user.username
                 else:
                     return HttpResponse("This room is full, please create a new game or join another game")
             
-            myTurn = (game[0].turn == 1 and game[0].creator_name.id == request.user.id) or  (game[0].turn == 2 and game[0].player.id == request.user.id)
+            myTurn = (game[0].turn == 1 and game[0].creator_name.pk == request.user.pk) or  (game[0].turn == 2 and game[0].player.pk == request.user.pk)
             
             return render(request,'match.html',{
                 'board_size':range(13),
