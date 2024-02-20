@@ -4,7 +4,6 @@ from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 class User(AbstractUser):
-    id = models.IntegerField(primary_key=True)
     isGuest = models.BooleanField(default = False)
 
     def __str__(self):
