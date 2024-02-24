@@ -179,7 +179,8 @@ body{
 
     #button-container{
         display: inline-block;
-        right: 10vw;
+        left: 10vw;
+        margin-top: 35px;
     }
 
     .btn{
