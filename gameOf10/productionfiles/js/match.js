@@ -9,6 +9,88 @@ const op = ['-','+','/','*'];
 var cardPlacedInfo = [];
 
 /////////////////////////////////////////////////////
+/////////////////FUNCTIONS///////////////////////////
+/////////////////////////////////////////////////////
+//these are function that will  be called in EVENTS/INIT FUNCTIONS
+
+function submitAction(){
+    const csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+    const data = new FormData();
+    data.append('action',JSON.stringify(cardPlacedInfo))
+    data.append('csrfmiddlewaretoken',csrfToken)
+    console.log(data)
+
+    fetch('/submit/',{
+        method: 'POST',
+        body: data,
+        credentials: 'same-origin',
+    })
+    .then(response => {
+        if (response.status == 200)
+            setTimeout(() => {
+                location.reload();
+            }, 500); 
+        else
+            return response.json()
+    })
+    .then(data => {
+        if (data)
+            custom_alert(data.message)
+    })
+}
+
+//discard the selected card and skip this turn
+function discardSelectedCard(){
+    //double check that the user want to skip the current turn
+    if (!confirm("Are you sure to discard the currect card and skip the turn?"))
+        return;
+
+    //if no card is selected
+    if(selectedCard == null){
+        custom_alert("ERROR! Please select a card to discard");
+        return;
+    }
+
+    const csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+    const data = new FormData();
+    data.append('selectedCard',selectedCard.innerHTML)
+    data.append('csrfmiddlewaretoken',csrfToken)
+
+    fetch('/discard/',{
+        method: 'POST',
+        body: data,
+        credentials: 'same-origin',
+    })
+    .then(response => {
+        if (response.status == 200)
+            setTimeout(() => {
+                location.reload();
+            }, 500); 
+        else
+            return response.json()
+    })
+    .then(data => {
+        if (data)
+            custom_alert(data.message)
+    })
+}
+
+//pop up a window which will alert the user
+function custom_alert(message){
+    const elem = document.createElement('span')
+    elem.id = 'custom-alert';
+    elem.textContent = message;
+    document.querySelector('#custom-alert-container').append(elem);
+    elem.style.animation = "fade-out 1s forwards";
+    setTimeout(() => {
+        elem.style.animation = "fade-in 1s forwards";
+        setTimeout(() => {
+            document.querySelector('#custom-alert-container').removeChild(elem);
+        }, 1000);
+    }, 2000);
+}
+
+/////////////////////////////////////////////////////
 /////////////////INIT FUNCTIONS//////////////////////
 /////////////////////////////////////////////////////
 //once the website is loaded, the code below will be run
@@ -41,6 +123,21 @@ const timerInterval = setInterval(() => {
 */
 
 window.onload = function() {
+    //check if one of the player reach 11 points
+    if (myScore > 10){
+        document.querySelectorAll('.card').forEach(el => {
+            el.classList.add('used')
+        })
+
+        confirm('You won, do you want to start a new match');
+    }else if (enemyScore > 10){
+        document.querySelectorAll('.card').forEach(el => {
+            el.classList.add('used')
+        })
+        
+        confirm('You lost, do you want to start a new match');
+    }
+
     //get each board-item and save it into board
     document.querySelectorAll('#board .board-item').forEach(element => {
         if (k % 13 == 0){
@@ -76,55 +173,9 @@ window.onload = function() {
             })
         }, 1000);
     }else
-        alert('It is your turn');
+        custom_alert('It is your turn');
 
 };
-
-/////////////////////////////////////////////////////
-/////////////////FUNCTIONS///////////////////////////
-/////////////////////////////////////////////////////
-//these are function that will  be called in EVENTS/INIT FUNCTIONS
-
-function submitAction(){
-    var redirectLink = "";
-    const csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
-    const data = new FormData();
-    data.append('action',JSON.stringify(cardPlacedInfo))
-    data.append('csrfmiddlewaretoken',csrfToken)
-    console.log("test")
-
-    fetch('/submit/',{
-        method: 'POST',
-        body: data,
-        credentials: 'same-origin',
-    })
-    .then(response => {
-        if (response.status == 200)
-            setTimeout(() => {
-                location.reload();
-            }, 500); 
-        else
-            return response.json()
-    })
-    .then(data => {
-        if (data)
-            alert(data.message)
-    })
-}
-
-//not used
-function newCard(val){
-    var isOp = false;
-    op.forEach(x =>{
-        if (val == x)
-            isOp = true;
-    })
-
-    if(isOp)
-        return op[Math.floor(Math.random() * op.length)];
-
-    return Math.floor(Math.random() * 10);
-}
 
 /////////////////////////////////////////////////////
 /////////////////EVENTS//////////////////////////////
@@ -150,19 +201,19 @@ document.querySelectorAll('#board .board-item').forEach(el => {
     el.onclick = () => {
         //if is not myTurn
         if(myTurn == false){
-            alert("ERROR! It is not your turn, please wait");
+            custom_alert("ERROR! It is not your turn, please wait");
             return;
         }
 
         //if no card is selected
         if(selectedCard == null){
-            alert("ERROR! Please select a card");
+            custom_alert("ERROR! Please select a card");
             return;
         }
 
         //if this cell has already a value (this means that a card is already placed in this cell)
         if (el.innerHTML != "" && el.innerHTML != " "){
-            alert("ERROR! You can't place it here");
+            custom_alert("ERROR! You can't place it here");
             return;
         }
 

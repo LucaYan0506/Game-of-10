@@ -8,50 +8,89 @@ from django.db.models import Q
 OP = ['-','+','/','*']
 
 def solveEquation(equation):
-    result = 0
-    operand = 0
-    operator = '+'
-    pending_operation = None  # To handle multiplication or division
+    opCount = 0 #count only multiplication and divition
+    equationList = []
+    currN = 0
+    for x in equation:
+        if x.isdigit():
+            currN = currN * 10 + int(x)
+        else:
+            if x in '*/':
+                opCount += 1
+            equationList.append(currN)
+            equationList.append(x)
+            currN = 0
 
-    for char in equation:
-        if char.isdigit():
-            operand = operand * 10 + int(char)
-        elif char in {'+', '-'}:
-            result = perform_pending_operation(result, operator, operand, pending_operation)
-            operator = char
-            operand = 0
-            pending_operation = None  # Reset pending operation for addition or subtraction
-        elif char == '*':
-            pending_operation = ('*', operand)
-            operand = 0
-        elif char == '/':
-            pending_operation = ('/', operand)
-            operand = 0
+    #save last num
+    equationList.append(currN)
 
-    #do last operation
-    result = perform_pending_operation(result, operator, operand, pending_operation)
+    #do the multiplication and division first
+    while opCount:
+        newEq = []
+        for i in range(len(equationList)):
+            if equationList[i] == '*':
+                opCount -= 1
+                temp = equationList[i - 1] * equationList[i + 1]
+                newEq = equationList[0:i - 1] + [temp]
+                if i + 2 < len(equationList):
+                    newEq = newEq + equationList[i + 2:]
+                equationList = newEq
+                break
+            elif equationList[i] == '/':
+                opCount -= 1
+                temp = 0.0
+                temp = equationList[i - 1] / equationList[i + 1]
+                newEq = equationList[0:i - 1] + [temp]
+                if i + 2 < len(equationList):
+                    newEq = newEq + equationList[i + 2:]
+                equationList = newEq
+                break
 
-    return result
+    print(equationList)
+    res = 0.00
+    sign = 1
 
-def perform_pending_operation(result, operator, operand, pending_operation):
-    if pending_operation:
-        op, value = pending_operation
-        if op == '*':
-            operand *= value
-        elif op == '/':
-            if value != 0:
-                operand /= value
+    for x in equationList:
+        if x == '+':
+            sign = 1
+        elif x == '-':
+            sign = -1
+        else:
+            res += x * sign
 
-    if operator == '+':
-        result += operand
-    elif operator == '-':
-        result -= operand
 
-    return result
+    return res
+
+def checkEquation(equation,getCardFromLeft):
+     #make sure that the equation is valid. E.g. start & endwith a number and doesn't have 2 operation next to each other
+    if (equation[0] in ['*','/'] and not getCardFromLeft) or equation[len(equation) - 1] in OP:
+        return {'valid':False,'message':'You must create a valid equation'}
+
+    prev = equation[0]
+    for i in range(1, len(equation) - 1):
+        if equation[i] in OP and prev in OP:
+            return {'valid':False,'message':'You must create a valid equation'}
+        prev = equation[i]
+
+
+    result = solveEquation(equation)
+    print(f'{equation} = {result}')
+
+    if (result <= 0):
+        return {'valid':False,'message':"Your equation can't be less or equal to 0"}
+
+
+    if (math.log10(result) % 1 != 0):
+        return {'valid':False,'message':'Your equation must be equal to the nth power of 10. (e.g. 0.1 1 10 100 etc)'}
+
+        
+
+    return {'valid':True,'message':'Success'}
 
 def isValidAction(board, action):
     sameColomn = sameRow = True
     prev = action[0]
+    equation = ""
     
     #check if all cards are placed in the same row/column
     for i in range(1,len(action)):
@@ -69,16 +108,19 @@ def isValidAction(board, action):
         firstActionRow = 14 
         lastActionRow = -1
         column = int(action[0]['column'])
-        equation = ""
 
         for x in action:
             firstActionRow = min(firstActionRow,int(x['row']))
             lastActionRow = max(lastActionRow,int(x['row']))
 
+        lastActionRow = max(lastActionRow,firstActionRow)#make sure that we get the whole line as equation
+
         for i in range(firstActionRow - 1, -1, -1):
             if board[i][column] != ' ':
                 getCardFromLeft = True
                 equation += board[i][column]
+            else:
+                break
 
         equation = equation[::-1]
 
@@ -91,23 +133,28 @@ def isValidAction(board, action):
             if board[i][column] != ' ':
                 equation += board[i][column]
 
-    elif sameRow:
+        res = checkEquation(equation, getCardFromLeft)
+        if res['valid']:
+            return res
+    if sameRow:
         firstActionCol = 14 
         lastActionCol = -1
         row = int(action[0]['row'])
-        equation = ""
 
         for x in action:
             firstActionCol = min(firstActionCol,int(x['column']))
             lastActionCol = max(lastActionCol,int(x['column']))
 
+        lastActionCol = max(lastActionCol,firstActionCol)#make sure that we get the whole line as equation
+
         for j in range(firstActionCol - 1, -1, -1):
             if board[row][j] != ' ':
                 getCardFromLeft = True
                 equation += board[row][j]
+            else:
+                break
 
         equation = equation[::-1]
-
         for j in range(firstActionCol,lastActionCol + 1):
             if board[row][j] == ' ':
                 return {'valid':False,'message':'You must create a valid equation'}
@@ -117,31 +164,7 @@ def isValidAction(board, action):
             if board[row][j] != ' ':
                 equation += board[row][j]
 
-    #make sure that the equation is valid. E.g. start & endwith a number and doesn't have 2 operation next to each other
-    if (equation[0] in ['*','/'] and not getCardFromLeft) or equation[len(equation) - 1] in OP:
-        return {'valid':False,'message':'You must create a valid equation'}
-
-    prev = equation[0]
-    for i in range(1, len(equation) - 1):
-        if equation[i] in OP and prev in OP:
-            return {'valid':False,'message':'You must create a valid equation'}
-        prev = equation[i]
-
-
-    result = solveEquation(equation)
-    print(f'{equation} = {result}')
-
-    if (result == 0):
-        return {'valid':False,'message':"Your equation can't be 0"}
-
-
-    if (math.log10(result) % 1 != 0):
-        return {'valid':False,'message':'Your equation must be equal to the nth power of 10. (e.g. 0.1 1 10 100 etc)'}
-
-        
-
-    return {'valid':True,'message':'Success'}
-
+    return checkEquation(equation,getCardFromLeft)
 
 def getNewCard(val):
     isOp = False
@@ -155,6 +178,9 @@ def getNewCard(val):
     return str(random.choice(range(10)))
 
 
+
+
+# Create your views here.
 def generateGuestUser(request):
     if request.user.is_authenticated:
         return HttpResponse(f"Hello {request.user}")
@@ -171,10 +197,12 @@ def generateGuestUser(request):
 
     return HttpResponse(f"Hello, {guestUser.username}!")
 
-# Create your views here.
 def index_view(request):
     message = request.GET.get('message')
-    return render(request,'index.html',{'message':message})
+    return render(request,'index.html',{
+        'message':message,
+        'isLogin':request.user.is_authenticated,
+        })
 
 def match_view(request):
     if not request.user.is_authenticated:
@@ -183,20 +211,22 @@ def match_view(request):
         code = request.POST['code']
         game = Game.objects.filter(code=code)
         if len(game) == 1:
-            player = None
             cards = None
+            myScore = 0
+            enemyScore = 0
             if game[0].creator_name.pk == request.user.pk:
                 cards = game[0].creator_cards
-                if game[0].player != None:
-                    player = game[0].player.username
+                enemyScore = game[0].player_score
+                myScore = game[0].creator_score
             else:
                 cards = game[0].player_cards
+                myScore = game[0].player_score
+                enemyScore = game[0].creator_score
                 if game[0].player == None:
                     game[0].player = request.user
                     game[0].save()
-                    player = request.user.username
                 elif game[0].player.pk == request.user.pk:
-                    player = request.user.username
+                    pass
                 else:
                     return HttpResponse("This room is full, please create a new game or join another game")
             
@@ -208,15 +238,35 @@ def match_view(request):
                 'cards':cards,
                 'code':game[0].code,
                 'board':game[0].board,
-                'player':player,
                 'myTurn':myTurn,
+                'myScore':myScore,
+                'enemyScore':enemyScore,
                 })
 
         return HttpResponseRedirect(reverse('index') + '?message=Invalid code')
-
+    elif request.method == 'GET':
+            game = Game.objects.filter(Q(creator_name=request.user) | Q(player=request.user))
+            if game.exists():
+                game = game[0]
+            else:
+                return JsonResponse({'message':f"user {request.user.username} didn't join any game"})
+            
+            cards = None
+            if game.creator_name.pk == request.user.pk:
+                cards = game.creator_cards
+            else:
+                cards = game.player_cards
+            myTurn = (game.turn == 1 and game.creator_name.pk == request.user.pk) or  (game.turn == 2 and game.player.pk == request.user.pk)
+            return render(request,'match.html',{
+                'board_size':range(13),
+                'creatorName':game.creator_name.username,
+                'cards':cards,
+                'code':game.code,
+                'board':game.board,
+                'myTurn':myTurn,
+                })
     return HttpResponse('Error, you are in the wrong page')
     
-
 def submitAction(request):
     if not request.user.is_authenticated or not request.method == 'POST':
         return HttpResponse('You are in the wrong page')
@@ -224,11 +274,17 @@ def submitAction(request):
     if game.exists():
         game = game[0]
     else:
-        return JsonResponse({'message':f"user {request.user.username} didn't join any game"})
+        return JsonResponse({'message':f"user {request.user.username} didn't join any game"},status=400)
 
     board_copy = [[' ' for _ in range(13)] for _ in range(13)]
     action = json.loads(request.POST['action'])
+    opCount = 0
+    numberCount = 0
     i = j = 0    
+
+    if not action:
+        return JsonResponse({'message':'Error, no card placed'},status=400)
+
     for x in game.board:
         if j == 13:
             i += 1
@@ -240,9 +296,12 @@ def submitAction(request):
 
     for x in action:
         board_copy[int(x['row'])][int(x['column'])] = x['val']
+        if x['val'] in OP:
+            opCount += 1
+        else:
+            numberCount += 1
 
     check = isValidAction(board_copy,action)
-    print(check['message'])
     if not check['valid']:
         return JsonResponse({'message':check['message']},status=400)
     
@@ -273,6 +332,7 @@ def submitAction(request):
                 newCard += x
         
         game.creator_cards = newCard
+        game.creator_score = game.creator_score + opCount + (numberCount == 4) * 4
         game.save()
     else:
         oldCard = list(game.player_cards)
@@ -288,10 +348,60 @@ def submitAction(request):
                 newCard += x
         
         game.player_cards = newCard
+        game.player_score = game.player_score + opCount + (numberCount == 4) * 4
         game.save()
 
     return JsonResponse({},status=200)
 
+def discardCard(request):
+    if not request.user.is_authenticated or not request.method == 'POST':
+        return HttpResponse('You are in the wrong page')
+    
+    selectedCard = request.POST['selectedCard']
+    if not selectedCard:
+        return JsonResponse({'message':"invalid card selected"},status=400)
+
+    game = Game.objects.filter(Q(creator_name=request.user) | Q(player=request.user))
+    if game.exists():
+        game = game[0]
+    else:
+        return JsonResponse({'message':f"user {request.user.username} didn't join any game"},status=400)
+    
+    if request.user == game.creator_name:
+        newCard = ''
+        found = False
+        for x in game.creator_cards:
+            if not found and x == selectedCard:
+                found = True
+                newCard += getNewCard(selectedCard)
+            else:
+                newCard += x
+        
+        if not found:
+            return JsonResponse({'message':"invalid card selected"},status=400)
+
+        game.creator_cards = newCard
+        game.turn = 2
+        game.save()
+    else:
+        newCard = ''
+        found = False
+        for x in game.player_cards:
+            if not found and x == selectedCard:
+                found = True
+                newCard += getNewCard(selectedCard)
+            else:
+                newCard += x
+        
+        if not found:
+            return JsonResponse({'message':"invalid card selected"},status=400)
+
+        game.player_cards = newCard
+        game.turn = 1
+        game.save()
+
+    
+    return JsonResponse({},status=200)
 
 def getMyTurn(request):
     if not request.user.is_authenticated:
@@ -305,3 +415,24 @@ def getMyTurn(request):
     myTurn = (game.turn == 1 and game.creator_name == request.user) or  (game.turn == 2 and game.player == request.user)
 
     return JsonResponse({'myTurn':myTurn})
+
+def loginView(request):
+    if request.method == 'POST':
+        # Validate and sanitize input
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        # Authenticate user
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            # Login the user
+            login(request, user)
+            return HttpResponseRedirect(reverse('index'))
+        else:
+            # Authentication failed
+            return HttpResponse('Invalid username or password')
+
+    # Handle GET request or failed authentication
+    # You might want to render a login page or redirect to a login view
+    return HttpResponse('You are in the wrong page')

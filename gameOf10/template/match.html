@@ -14,7 +14,7 @@
     </div>
 
 
-    <div id="timer">{% if myTurn %}your turn: {% else %}enemy turn: {% endif %}<b>120:00</b></div>
+    <div id="score">Score: <b>{{ myScore }}</b>:<b>{{ enemyScore }}</b> ({% if myTurn %}your turn {% else %}enemy turn {% endif %})</div>
 
     <div id="board">
         {% for i in board_size %}
@@ -26,8 +26,14 @@
 
     <div id="button-container">
         {% csrf_token %}
-        <button onclick="submitAction()">submit</button>
+        <button class="btn discard" onclick="discardSelectedCard()">Discard</button>
+        <button class="btn reset" onclick="location.reload()">Reset</button>
+        <button class="btn submit" onclick="submitAction()">Submit</button>
+
     </div>
+
+
+    <div id="custom-alert-container"></div>
 
     <script>
         {% if myTurn %}
@@ -36,6 +42,8 @@
             myTurn = false;
         {% endif %}
         board_detail = "{{board}}"
+        myScore = {{ myScore }}
+        enemyScore = {{ enemyScore }}
     </script>
     <script src="{% static 'js/match.js'%}"></script>
 </body>

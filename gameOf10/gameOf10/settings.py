@@ -88,6 +88,11 @@ DATABASES = {
 }
 '''
 
+# Render PostgreSQL database (used in production)
+DATABASES = {
+    'default':dj_database_url.parse(env('DATABASE_URL'))
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -134,12 +139,3 @@ STATIC_ROOT = BASE_DIR / 'productionfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'core.User'
-
-
-# Render PostgreSQL database (used in production)
-
-DATABASES = {
-    
-    'default':dj_database_url.parse(env('DATABASE_URL'))
-    
-}

@@ -7,4 +7,8 @@ urlpatterns = [
     path('match/',views.match_view, name="match"),
     path('submit/',views.submitAction, name="submit"),
     path('getMyTurn/',views.getMyTurn, name="getTurnInfo"),
+    path('discard/',views.discardCard, name="discardCard"),
+    path('login/',views.loginView, name="login"),
+
+    #path('tutorial/',views.discardCard, name="discardCard"),
 ]
