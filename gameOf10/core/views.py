@@ -132,6 +132,8 @@ def isValidAction(board, action):
         for i in range(lastActionRow + 1, 13):
             if board[i][column] != ' ':
                 equation += board[i][column]
+            else:
+                break
 
         res = checkEquation(equation, getCardFromLeft)
         if res['valid']:
@@ -163,6 +165,8 @@ def isValidAction(board, action):
         for j in range(lastActionCol + 1, 13):
             if board[row][j] != ' ':
                 equation += board[row][j]
+            else:
+                break
 
     return checkEquation(equation,getCardFromLeft)
 
