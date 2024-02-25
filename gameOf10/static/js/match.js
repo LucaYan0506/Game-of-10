@@ -124,18 +124,57 @@ const timerInterval = setInterval(() => {
 
 window.onload = function() {
     //check if one of the player reach 11 points
+    const data = new FormData();
+    const csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+    data.append('csrfmiddlewaretoken',csrfToken)
     if (myScore > 10){
         document.querySelectorAll('.card').forEach(el => {
             el.classList.add('used')
         })
 
-        confirm('You won, do you want to start a new match');
+        if (confirm('You won, do you want to start a new match')){
+            fetch('/newGame/',{
+                method: 'POST',
+                body: data,
+                credentials: 'same-origin',
+            })
+            .then(response => {
+                if (response.status == 200)
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500); 
+                else
+                    return response.json()
+            })
+            .then(data => {
+                if (data)
+                    custom_alert(data.message)
+            })
+        }
     }else if (enemyScore > 10){
         document.querySelectorAll('.card').forEach(el => {
             el.classList.add('used')
         })
         
-        confirm('You lost, do you want to start a new match');
+        if (confirm('You lost, do you want to start a new match')){
+            fetch('/newGame/',{
+                method: 'POST',
+                body: data,
+                credentials: 'same-origin',
+            })
+            .then(response => {
+                if (response.status == 200)
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500); 
+                else
+                    return response.json()
+            })
+            .then(data => {
+                if (data)
+                    custom_alert(data.message)
+            })
+        }
     }
 
     //get each board-item and save it into board
@@ -158,6 +197,11 @@ window.onload = function() {
         var i = Math.floor(n / 13), j = n % 13;
         board[i][j].innerHTML = board_detail[n];
     }
+
+    //get lastMove
+    lastMove.forEach( pos => {
+        board[pos[0]][pos[1]].classList.add('last-move')
+    })
 
     if (!myTurn){
         //check if it is my turn

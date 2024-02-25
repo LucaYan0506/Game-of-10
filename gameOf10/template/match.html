@@ -37,13 +37,19 @@
 
     <script>
         {% if myTurn %}
-            myTurn = true;
+            var myTurn = true;
         {% else %}
-            myTurn = false;
+            var myTurn = false;
         {% endif %}
-        board_detail = "{{board}}"
-        myScore = {{ myScore }}
-        enemyScore = {{ enemyScore }}
+
+        var lastMove = []
+        {% for x in lastMove %}
+        lastMove.push([{{x.row}},{{x.column}}])
+        {% endfor %}
+
+        var board_detail = "{{board}}"
+        var myScore = {{ myScore }}
+        var enemyScore = {{ enemyScore }}
     </script>
     <script src="{% static 'js/match.js'%}"></script>
 </body>

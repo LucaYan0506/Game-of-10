@@ -32,6 +32,10 @@ body{
     color:white;
 }
 
+.board-item.last-move{
+    background-color: #FFEB3B;
+}
+
 #card-container{
     position:absolute;
     bottom:0;

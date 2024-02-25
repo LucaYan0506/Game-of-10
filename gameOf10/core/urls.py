@@ -8,6 +8,7 @@ urlpatterns = [
     path('submit/',views.submitAction, name="submit"),
     path('getMyTurn/',views.getMyTurn, name="getTurnInfo"),
     path('discard/',views.discardCard, name="discardCard"),
+    path('newGame/',views.newGameView, name="newGame"),
     path('login/',views.loginView, name="login"),
 
     #path('tutorial/',views.discardCard, name="discardCard"),

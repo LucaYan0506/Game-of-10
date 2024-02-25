@@ -245,6 +245,7 @@ def match_view(request):
                 'myTurn':myTurn,
                 'myScore':myScore,
                 'enemyScore':enemyScore,
+                'lastMove':game.lastMove
                 })
 
         return HttpResponseRedirect(reverse('index') + '?message=Invalid code')
@@ -256,11 +257,18 @@ def match_view(request):
                 return JsonResponse({'message':f"user {request.user.username} didn't join any game"})
             
             cards = None
+            myScore = 0
+            enemyScore = 0
             if game.creator_name.pk == request.user.pk:
                 cards = game.creator_cards
+                enemyScore = game.player_score
+                myScore = game.creator_score
             else:
                 cards = game.player_cards
+                myScore = game.player_score
+                enemyScore = game.creator_score
             myTurn = (game.turn == 1 and game.creator_name.pk == request.user.pk) or  (game.turn == 2 and game.player.pk == request.user.pk)
+
             return render(request,'match.html',{
                 'board_size':range(13),
                 'creatorName':game.creator_name.username,
@@ -268,6 +276,9 @@ def match_view(request):
                 'code':game.code,
                 'board':game.board,
                 'myTurn':myTurn,
+                'myScore':myScore,
+                'enemyScore':enemyScore,
+                'lastMove':[{'row': '9', 'column': '5', 'val': '9'}, {'row': '9', 'column': '6', 'val': '/'}, {'row': '9', 'column': '7', 'val': '9'}]
                 })
     return HttpResponse('Error, you are in the wrong page')
     
@@ -337,6 +348,7 @@ def submitAction(request):
         
         game.creator_cards = newCard
         game.creator_score = game.creator_score + opCount + (numberCount == 4) * 4
+        game.lastMove = action
         game.save()
     else:
         oldCard = list(game.player_cards)
@@ -353,6 +365,7 @@ def submitAction(request):
         
         game.player_cards = newCard
         game.player_score = game.player_score + opCount + (numberCount == 4) * 4
+        game.lastMove = action
         game.save()
 
     return JsonResponse({},status=200)
@@ -440,3 +453,23 @@ def loginView(request):
     # Handle GET request or failed authentication
     # You might want to render a login page or redirect to a login view
     return HttpResponse('You are in the wrong page')
+
+def newGameView(request):
+    if not request.user.is_authenticated or not request.method == 'POST':
+        return HttpResponse('You are in the wrong page')
+    
+    game = Game.objects.filter(Q(creator_name=request.user) | Q(player=request.user))
+    if game.exists():
+        game = game[0]
+    else:
+        return JsonResponse({'message':f"user {request.user.username} didn't join any game"},status=400)
+    
+    game.board = ''
+    game.creator_score = 0
+    game.player_score = 0
+    game.save()
+
+    return JsonResponse({},status=200)
+
+
+#last move
