@@ -245,7 +245,7 @@ def match_view(request):
                 'myTurn':myTurn,
                 'myScore':myScore,
                 'enemyScore':enemyScore,
-                'lastMove':game.lastMove
+                'lastMove':json.loads(game[0].lastMove.replace("'",'"'))
                 })
 
         return HttpResponseRedirect(reverse('index') + '?message=Invalid code')
@@ -278,9 +278,10 @@ def match_view(request):
                 'myTurn':myTurn,
                 'myScore':myScore,
                 'enemyScore':enemyScore,
-                'lastMove':[{'row': '9', 'column': '5', 'val': '9'}, {'row': '9', 'column': '6', 'val': '/'}, {'row': '9', 'column': '7', 'val': '9'}]
+                'lastMove':json.loads(game.lastMove.replace("'",'"'))
                 })
     return HttpResponse('Error, you are in the wrong page')
+
     
 def submitAction(request):
     if not request.user.is_authenticated or not request.method == 'POST':
