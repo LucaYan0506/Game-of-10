@@ -4,7 +4,6 @@
 ## Context
 **Development team:**
 * Zhong Yi Yan - backend developer
-* Oleksandr- frontend developer
 
 ## Rule of the game
 It is a maths based game. The are 2 players in this game. Initially, each player will have 6 cards:  
