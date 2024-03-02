@@ -39,6 +39,8 @@ def solveEquation(equation):
             elif equationList[i] == '/':
                 opCount -= 1
                 temp = 0.0
+                if equationList[i + 1] == 0:
+                    return "Error"
                 temp = equationList[i - 1] / equationList[i + 1]
                 newEq = equationList[0:i - 1] + [temp]
                 if i + 2 < len(equationList):
@@ -75,6 +77,9 @@ def checkEquation(equation,getCardFromLeft):
 
     result = solveEquation(equation)
     print(f'{equation} = {result}')
+
+    if result == 'Error':
+        return {'valid':False,'message':"Your equation is invalid"}
 
     if (result <= 0):
         return {'valid':False,'message':"Your equation can't be less or equal to 0"}
@@ -184,7 +189,6 @@ def getNewCard(val):
 
 
 
-# Create your views here.
 def generateGuestUser(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect(reverse('index') + f"?message=Hello, {request.user.username}!")
@@ -294,7 +298,6 @@ def match_view(request):
                 })
     return HttpResponse('Error, you are in the wrong page')
 
-    
 def submitAction(request):
     if not request.user.is_authenticated or not request.method == 'POST':
         return HttpResponse('You are in the wrong page')
@@ -480,6 +483,7 @@ def newGameView(request):
     game.board = ''
     game.creator_score = 0
     game.player_score = 0
+    game.lastMove = None
     game.save()
 
     return JsonResponse({},status=200)
