@@ -27,33 +27,38 @@
         <form action="match/" method="post">
             {% csrf_token %}
             <input type="text" name="code" id="code" placeholder="Enter the code of the game">
-            <input type="submit" class="btn" style="float: inline-end;" value="Join">
+            <input type="submit" class="btn join" style="float: inline-end;" value="Join">
         </form>
         {% if isLogin %}
-            <button class="btn">Create new match</button>
+        <button class="btn create-new-match" style="width:100%">Create new match</button>
         {% else %}
-            <button class="btn" onclick="show_hide_login_view()">Login</button>
-            <button class="btn" style="float:inline-end">Create new match</button>
+            <button class="btn login" onclick="show_hide_login_view()">Login</button>
+            <button class="btn create-new-match" style="float:inline-end">Create new match</button>
         {% endif %} 
     </div>
 
+    {% if not isLogin %}
+        <div id="login-container">
+            <form id="login-form" action="{% url 'login' %}" method="post">
+                <label onclick="show_hide_login_view()" style="cursor: pointer;position:absolute;right: 15px;user-select: none;">X</label>
+                {% csrf_token %}
+                <div class="form-group" style="margin-top:15px">
+                    <label for="exampleInputEmail1">Username</label>
+                    <input id="username" name="username" type="text" class="form-control" placeholder="Enter username">
+                    <small id="emailHelp" class="form-text text-muted">We'll never share your account with anyone else.</small>
+                </div>
+                <div class="form-group">
+                    <label for="InputPassword">Password</label>
+                    <input id="password" name="password" type="password" class="form-control" placeholder="Password">
+                </div>
 
-    <div id="login-container">
-        <form id="login-form" action="{% url 'login' %}" method="post">
-            <label onclick="show_hide_login_view()" style="cursor: pointer;position:absolute;right: 15px;user-select: none;">X</label>
-            {% csrf_token %}
-            <div class="form-group" style="margin-top:15px">
-                <label for="exampleInputEmail1">Username</label>
-                <input id="username" name="username" type="text" class="form-control" placeholder="Enter username">
-                <small id="emailHelp" class="form-text text-muted">We'll never share your account with anyone else.</small>
-              </div>
-              <div class="form-group">
-                <label for="InputPassword">Password</label>
-                <input id="password" name="password" type="password" class="form-control" placeholder="Password">
-              </div>
-              <button type="submit" style="float: right;" class="btn btn-primary">Login</button>
-        </form>
-    </div>
+                <a class="btn sign-up" href="/sign_up/">Sign Up</a>
+                <a class="btn join-as-guest" href="/guest/">Join as guest</a>
+                <button type="submit" class="btn login" style="float:right">Login</button>
+            </form>
+        </div>
+    {% endif %}
+
     <script src="{% static 'js/index.js'%}"></script>
 </body>
 </html>
