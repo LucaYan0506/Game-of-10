@@ -40,6 +40,8 @@ def solveEquation(equation):
             elif equationList[i] == '/':
                 opCount -= 1
                 temp = 0.0
+                if equationList[i + 1] == 0:
+                    return "Error"
                 temp = equationList[i - 1] / equationList[i + 1]
                 newEq = equationList[0:i - 1] + [temp]
                 if i + 2 < len(equationList):
@@ -76,6 +78,9 @@ def checkEquation(equation,getCardFromLeft):
 
     result = solveEquation(equation)
     print(f'{equation} = {result}')
+
+    if result == 'Error':
+        return {'valid':False,'message':"Your equation is invalid"}
 
     if (result <= 0):
         return {'valid':False,'message':"Your equation can't be less or equal to 0"}
@@ -201,12 +206,16 @@ def showProfile(request):
     user = authenticate(request, username=guest_username,password = 'test')
     login(request, user)
 
-    return HttpResponse(f"Hello, {guestUser.username}!")
+    return HttpResponseRedirect(reverse('index') + f"?message=Hello, {guestUser.username}!")
 
 def index_view(request):
-    message = request.GET.get('message')
+    if request.user.is_authenticated:
+        game = Game.objects.filter(Q(creator_name=request.user) | Q(player=request.user))
+        if game.exists():
+            return HttpResponseRedirect(reverse('match'))
+
     return render(request,'index.html',{
-        'message':message,
+        'message':request.GET.get('message'),
         'isLogin':request.user.is_authenticated,
         })
 
@@ -226,47 +235,53 @@ def match_view(request):
     if request.method == 'POST':
         code = request.POST['code']
         game = Game.objects.filter(code=code)
-        if len(game) == 1:
-            cards = None
-            myScore = 0
-            enemyScore = 0
-            if game[0].creator_name.pk == request.user.pk:
-                cards = game[0].creator_cards
-                enemyScore = game[0].player_score
-                myScore = game[0].creator_score
+        if game.exists():
+            game = game[0]
+        else:
+            return HttpResponseRedirect(reverse('index') + '?message=Invalid code')
+        
+        cards = None
+        myScore = 0
+        enemyScore = 0
+        if game.creator_name.pk == request.user.pk:
+            cards = game.creator_cards
+            enemyScore = game.player_score
+            myScore = game.creator_score
+        else:
+            cards = game.player_cards
+            myScore = game.player_score
+            enemyScore = game.creator_score
+            if game.player == None:
+                game.player = request.user
+                game.save()
+            elif game.player.pk == request.user.pk:
+                pass
             else:
-                cards = game[0].player_cards
-                myScore = game[0].player_score
-                enemyScore = game[0].creator_score
-                if game[0].player == None:
-                    game[0].player = request.user
-                    game[0].save()
-                elif game[0].player.pk == request.user.pk:
-                    pass
-                else:
-                    return HttpResponse("This room is full, please create a new game or join another game")
-            
-            myTurn = (game[0].turn == 1 and game[0].creator_name.pk == request.user.pk) or  (game[0].turn == 2 and game[0].player.pk == request.user.pk)
-            
-            return render(request,'match.html',{
-                'board_size':range(13),
-                'creatorName':game[0].creator_name.username,
-                'cards':cards,
-                'code':game[0].code,
-                'board':game[0].board,
-                'myTurn':myTurn,
-                'myScore':myScore,
-                'enemyScore':enemyScore,
-                'lastMove':json.loads(game[0].lastMove.replace("'",'"'))
-                })
+                return HttpResponse("This room is full, please create a new game or join another game")
+        
+        myTurn = (game.turn == 1 and game.creator_name.pk == request.user.pk) or  (game.turn == 2 and game.player.pk == request.user.pk)
+        
+        lastMove = None
+        if game.lastMove is not None:
+            lastMove = json.loads(game.lastMove.replace("'",'"'))
+        return render(request,'match.html',{
+            'board_size':range(13),
+            'creatorName':game.creator_name.username,
+            'cards':cards,
+            'code':game.code,
+            'board':game.board,
+            'myTurn':myTurn,
+            'myScore':myScore,
+            'enemyScore':enemyScore,
+            'lastMove':lastMove
+            })
 
-        return HttpResponseRedirect(reverse('index') + '?message=Invalid code')
     elif request.method == 'GET':
             game = Game.objects.filter(Q(creator_name=request.user) | Q(player=request.user))
             if game.exists():
                 game = game[0]
             else:
-                return JsonResponse({'message':f"user {request.user.username} didn't join any game"})
+                return HttpResponse({f"user {request.user.username} didn't join any game"})
             
             cards = None
             myScore = 0
@@ -280,7 +295,9 @@ def match_view(request):
                 myScore = game.player_score
                 enemyScore = game.creator_score
             myTurn = (game.turn == 1 and game.creator_name.pk == request.user.pk) or  (game.turn == 2 and game.player.pk == request.user.pk)
-
+            lastMove = None
+            if game.lastMove is not None:
+                lastMove = json.loads(game.lastMove.replace("'",'"'))
             return render(request,'match.html',{
                 'board_size':range(13),
                 'creatorName':game.creator_name.username,
@@ -290,11 +307,10 @@ def match_view(request):
                 'myTurn':myTurn,
                 'myScore':myScore,
                 'enemyScore':enemyScore,
-                'lastMove':json.loads(game.lastMove.replace("'",'"'))
+                'lastMove':lastMove
                 })
     return HttpResponse('Error, you are in the wrong page')
 
-    
 def submitAction(request):
     if not request.user.is_authenticated or not request.method == 'POST':
         return HttpResponse('You are in the wrong page')

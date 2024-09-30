@@ -152,6 +152,7 @@ body{
     width: 100vw;
     margin-top: 2rem;
     text-align: center;
+    pointer-events: none;
 }
 
 #custom-alert{

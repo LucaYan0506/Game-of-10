@@ -27,7 +27,7 @@
         <form action="match/" method="post">
             {% csrf_token %}
             <input type="text" name="code" id="code" placeholder="Enter the code of the game">
-            <input type="submit" class="btn" style="float: inline-end;" value="Join">
+            <input type="submit" class="btn join" style="float: inline-end;" value="Join">
         </form>
         {% if isLogin %}
             <form action="newGame/" onsubmit="return confirmation()" method="post">
