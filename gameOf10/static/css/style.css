@@ -33,7 +33,7 @@
     font-size: 1rem;
 }
 
-#login-container{
+#login-container, #register-container{
     display: none;
     align-items: center;
     justify-content: center;
@@ -46,7 +46,7 @@
     z-index: 1;
 }
 
-#login-form{
+#login-form, #register-form{
     background-color: whitesmoke;
     width: 50%;
     max-width: 600px;

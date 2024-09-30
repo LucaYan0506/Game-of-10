@@ -4,6 +4,7 @@ from django.http import HttpResponse,HttpResponseRedirect, JsonResponse
 from .models import Game,User
 import uuid, json, random, math
 from django.db.models import Q
+from django.db import IntegrityError
 
 OP = ['-','+','/','*']
 
@@ -185,10 +186,11 @@ def getNewCard(val):
 
 
 # Create your views here.
-def generateGuestUser(request):
+def showProfile(request):
     if request.user.is_authenticated:
         return HttpResponse(f"Hello {request.user}")
     
+    #generate guest user
     guest_username = f'guest_{uuid.uuid4().hex[:8]}'
     while User.objects.filter(username=guest_username).exists():
         guest_username = f'guest_{uuid.uuid4().hex[:8]}'
@@ -210,7 +212,17 @@ def index_view(request):
 
 def match_view(request):
     if not request.user.is_authenticated:
-        return HttpResponse("Error, no user")
+         #generate guest user
+        guest_username = f'guest_{uuid.uuid4().hex[:8]}'
+        while User.objects.filter(username=guest_username).exists():
+            guest_username = f'guest_{uuid.uuid4().hex[:8]}'
+            
+        guestUser = User(username = guest_username, isGuest = True)
+        guestUser.set_password('test')
+        guestUser.save()
+        user = authenticate(request, username=guest_username,password = 'test')
+        login(request, user)
+        #return HttpResponseRedirect(reverse('index') + '?message=Please log in or create an account')
     if request.method == 'POST':
         code = request.POST['code']
         game = Game.objects.filter(code=code)
@@ -468,9 +480,35 @@ def newGameView(request):
     game.board = ''
     game.creator_score = 0
     game.player_score = 0
+    game.lastMove = '[]'
     game.save()
 
-    return JsonResponse({},status=200)
+    return HttpResponseRedirect(reverse('match'))
 
+def registerView(request):
+    if not request.method == 'POST':
+        return HttpResponse('You are in the wrong page')
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('index'))
+
+    username = request.POST["username"]
+    # Ensure password matches confirmation
+    password = request.POST["password"]
+    confirmation = request.POST["confirmPassword"]
+    if password != confirmation:
+        return JsonResponse({
+            "message": "Passwords must match."
+        }, status=400)
+
+    # Attempt to create new user
+    try:
+        user = User.objects.create_user(username, "", password)
+        user.save()
+    except IntegrityError:
+        return JsonResponse({
+             "message": "Username already taken."
+        }, status=400)
+    login(request, user)
+    return HttpResponseRedirect(reverse("index"))
 
 #last move
