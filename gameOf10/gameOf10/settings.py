@@ -30,8 +30,10 @@ SECRET_KEY = 'dsafdsafds'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['zhong.tardis.ac']
 
+#Trust origin for csrf token (post request)
+CSRF_TRUSTED_ORIGINS = ['https://zhong.tardis.ac/','https://zhong.tardis.ac']
 
 # Application definition
 

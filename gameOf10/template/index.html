@@ -32,7 +32,7 @@
         {% if isLogin %}
             <form action="newGame/" onsubmit="return confirmation()" method="post">
                 {% csrf_token %}
-                <button class="btn">Create new match</button>
+                <button class="btn create-new-match">Create new match</button>
             </form>
         {% else %}
             <button class="btn login" onclick="show_hide_login_view()">Login</button>
