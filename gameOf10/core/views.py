@@ -534,12 +534,27 @@ def registerView(request):
 @csrf_exempt
 def sendCommand(request):
     if request.method == 'POST':
-        pass
-        return HttpResponse('success')
+        data = json.loads(request.body)  # Parse JSON payload
+        command = data.get('command')
+        card = data.get('card')
+        game = Game.objects.all()[0]
+        game.command = card
+        game.save()
+
+        print(card, command)
+        return JsonResponse(json.loads(request.body),status=200)
     else:
         return HttpResponse('Error, you are in the wrong page')
 
-
+def commandDetected(request):
+    game = Game.objects.all()[0]
+    command = game.command
+    game.command= ''
+    game.save()
+    return JsonResponse({
+        'getCommand':len(command) >= 1,
+        'command':command
+    },status=200)
 
 '''
 

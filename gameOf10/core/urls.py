@@ -12,7 +12,7 @@ urlpatterns = [
     path('login/',views.loginView, name="login"),
     path('register/',views.registerView, name="register"),
     path('sendCommand/',views.sendCommand, name="sendCommand"),
-    # path('commandDetected/',views.commandDetected, name="commandDetected"),
+    path('commandDetected/',views.commandDetected, name="commandDetected"),
 
     #path('tutorial/',views.discardCard, name="discardCard"),
 ]

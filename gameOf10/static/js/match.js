@@ -225,6 +225,23 @@ window.onload = function() {
     }else
         custom_alert('It is your turn');
 
+    var checkCommand = setInterval(() => {
+        fetch('/commandDetected/')
+        .then(response => response.json())
+        .then(data => {
+            if(data['getCommand']){
+                clearInterval(refreshTurn);
+                command = data['command']
+                card = document.querySelectorAll('.card')
+                if (command.length == 1)
+                // alert(command)
+                    card[command - 1].click();
+                else
+                    document.querySelectorAll('.board-item')[0].click()
+            }
+            
+        })
+    }, 1000);
 };
 
 /////////////////////////////////////////////////////
