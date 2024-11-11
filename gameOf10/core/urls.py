@@ -11,6 +11,8 @@ urlpatterns = [
     path('newGame/',views.newGameView, name="newGame"),
     path('login/',views.loginView, name="login"),
     path('register/',views.registerView, name="register"),
+    path('sendCommand/',views.sendCommand, name="sendCommand"),
+    # path('commandDetected/',views.commandDetected, name="commandDetected"),
 
     #path('tutorial/',views.discardCard, name="discardCard"),
 ]

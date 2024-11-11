@@ -5,6 +5,8 @@ from .models import Game,User
 import uuid, json, random, math
 from django.db.models import Q
 from django.db import IntegrityError
+from django.views.decorators.csrf import csrf_exempt
+
 
 OP = ['-','+','/','*']
 
@@ -528,3 +530,30 @@ def registerView(request):
     return HttpResponseRedirect(reverse("index"))
 
 #last move
+
+@csrf_exempt
+def sendCommand(request):
+    if request.method == 'POST':
+        pass
+        return HttpResponse('success')
+    else:
+        return HttpResponse('Error, you are in the wrong page')
+
+
+
+'''
+
+import requests
+
+url = "http://127.0.0.1:8000/sendCommand/"
+
+# Example data payload (adjust as needed)
+payload = {
+    "command": "start",
+    "parameters": {"speed": 100, "direction": "north"}
+}
+
+response = requests.post(url, json=payload)  # POST request
+print("Response status code:", response.status_code)
+print("Response body:", response.json()) 
+'''

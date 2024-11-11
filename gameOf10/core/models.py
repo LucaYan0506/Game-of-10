@@ -26,4 +26,5 @@ class Game(models.Model):
     player_score = models.IntegerField(default=0)
     turn = models.IntegerField(choices=TURN_CHOICES, default=1)
     lastMove = models.CharField(max_length=1000, default=None, blank=True, null=True)
+    command = models.CharField(max_length=1000, default=None, blank=True, null=True)
 
