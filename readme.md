@@ -1,6 +1,6 @@
 # Game of power of 10
 ## Live demo
-
+https://zhong.tardis.ac/
 ## Context
 **Development team:**
 * Zhong Yi Yan - backend developer
