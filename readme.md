@@ -1,3 +1,9 @@
+> ⚠️ **Deprecated Project**  
+> This version of **Game of 10** is no longer maintained or supported.  
+> A completely redesigned version is now in development using **React + Django**, with improved features and a modern UI.  
+> 👉 Check out the new version [here]([https://github.com/your-new-repo-link](https://github.com/LucaYan0506/Game-of-10-V2)) (Coming soon).
+
+
 # Game of power of 10
 ## Live demo
 https://zhong.tardis.ac/
